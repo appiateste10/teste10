@@ -97,3 +97,17 @@ if (window.location.pathname.includes('formulario.html') ||
     (window.location.pathname === '' && window.location.hash === '#formulario')) {
     window.onload = generateWhatsAppButtons;
 }
+
+// Carregar Google Maps API corretamente
+function loadGoogleMaps() {
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBmc6HTJo70N_ueR1qFVgyu74v7FIl7dU4&callback=initMap';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+}
+
+// Inicializar quando a página carregar
+if (document.getElementById('map')) {
+    window.onload = loadGoogleMaps;
+}

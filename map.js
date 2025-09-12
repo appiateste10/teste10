@@ -22,15 +22,42 @@ function initMap() {
         rotateControl: true,
         fullscreenControl: true
     });
+    
+    // Tentar centralizar no usuário se a geolocalização estiver disponível
+    if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                map.setCenter(userLocation);
+                
+                // Adicionar marcador padrão do Google Maps para o usuário
+                new google.maps.Marker({
+                    position: userLocation,
+                    map: map,
+                    title: 'Sua localização',
+                    icon: {
+                        url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                    }
+                });
+            },
+            function(error) {
+                console.log('Geolocalização não permitida ou não disponível');
+            }
+        );
+    }
 }
 
 // Inicializar mapa na área do motorista
 function initDriverMap() {
-    // Coordenadas de Lisboa
+    // Coordenadas iniciais de Lisboa
     const lisbon = { lat: 38.7223, lng: -9.1393 };
     
     map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 12,
+        zoom: 15, // Zoom mais próximo para melhor visualização
         center: lisbon,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     });
@@ -45,28 +72,23 @@ function initDriverMap() {
         fullscreenControl: true
     });
     
-    // Ícone personalizado para o táxi (carro amarelo com detalhes em preto)
-    const taxiIcon = {
-        url: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjMDAwMDAwIj48cGF0aCBmaWxsPSIjZmZkNzAwIiBkPSJNMTI1LjcgMTg0LjVjLTEzLjggMC0yNS0xMS4yLTI1LTI1czExLjItMjUgMjUtMjUgMjUgMTEuMiAyNSAyNS0xMS4yIDI1LTI1IDI1em0yNjAuNiAwYy0xMy44IDAtMjUtMTEuMi0yNS0yNXMxMS4yLTI1IDI1LTI1IDI1IDExLjIgMjUgMjUtMTEuMiAyNS0yNSAyNXpNNDA2LjUgMTYwSDM1MHYtNDBjMC02LjYtNS40LTEyLTEyLTEySDE3NGMtNi42IDAtMTIgNS40LTEyIDEydjQwSDEwNS41Yy01LjggMC0xMC41IDQuNy0xMC41IDEwLjV2MjI5YzAgNS44IDQuNyAxMC41IDEwLjUgMTAuNWgzMDFjNS44IDAgMTAuNS00LjcgMTAuNS0xMC41di0yMjljMC01LjgtNC43LTEwLjUtMTAuNS0xMC41ek0xOTQgMTQwaDEyNHY0MEgxOTR2LTQwem0yMjQgMjA2LjVjMCA1LjItNC4zIDkuNS05LjUgOS41aC0yOTFjLTUuMiAwLTkuNS00LjMtOS41LTkuNXY0OWMwIDUuMiA0LjMgOS41IDkuNSA5LjVoMjkxYzUuMiAwIDkuNS00LjMgOS41LTkuNXYtNDl6bTAtNjljMCA1LjItNC4zIDkuNS05LjUgOS41aC0yOTFjLTUuMiAwLTkuNS00LjMtOS41LTkuNXYtMjljMC01LjIgNC4zLTkuNSA5LjUtOS41aDI5MWM1LjIgMCA5LjUgNC4zIDkuNSA5LjV2Mjl6Ii8+PC9zdmc+',
-        scaledSize: new google.maps.Size(45, 45),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(22, 22)
-    };
-    
-    // Criar marcador para o motorista
+    // Criar marcador padrão do Google Maps para o motorista
     driverMarker = new google.maps.Marker({
         position: lisbon,
         map: map,
-        icon: taxiIcon,
         title: 'Sua localização',
-        optimized: false // Para melhor performance com ícones personalizados
+        icon: {
+            url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            scaledSize: new google.maps.Size(40, 40)
+        },
+        animation: google.maps.Animation.DROP
     });
     
     // Tornar o marcador acessível globalmente
     window.driverMarker = driverMarker;
     window.map = map;
     
-    // Centralizar o mapa na localização do motorista, se disponível
+    // Centralizar o mapa na localização real do motorista
     if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
             function(position) {
@@ -75,38 +97,62 @@ function initDriverMap() {
                     lng: position.coords.longitude
                 };
                 
-                map.setCenter(driverLocation);
+                // Atualizar posição do marcador
                 driverMarker.setPosition(driverLocation);
                 
-                // Adicionar animação de pulso ao marcador
-                setInterval(() => {
-                    driverMarker.setAnimation(google.maps.Animation.BOUNCE);
-                    setTimeout(() => {
-                        driverMarker.setAnimation(null);
-                    }, 750);
-                }, 3000);
+                // Centralizar o mapa na nova posição com animação
+                map.panTo(driverLocation);
+                
+                // Adicionar círculo de precisão
+                const circle = new google.maps.Circle({
+                    map: map,
+                    center: driverLocation,
+                    radius: position.coords.accuracy,
+                    fillColor: '#FF0000',
+                    fillOpacity: 0.2,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 0.5,
+                    strokeWeight: 1
+                });
+                
+                console.log('Localização do motorista:', driverLocation.lat, driverLocation.lng);
+                
             },
             function(error) {
                 console.error('Erro ao obter localização:', error);
-                // Manter animação mesmo sem geolocalização
-                setInterval(() => {
-                    driverMarker.setAnimation(google.maps.Animation.BOUNCE);
-                    setTimeout(() => {
-                        driverMarker.setAnimation(null);
-                    }, 750);
-                }, 3000);
+                alert('Não foi possível acessar sua localização. Verifique as permissões do navegador.');
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
             }
         );
     } else {
-        // Animação para quando a geolocalização não é suportada
-        setInterval(() => {
-            driverMarker.setAnimation(google.maps.Animation.BOUNCE);
-            setTimeout(() => {
-                driverMarker.setAnimation(null);
-            }, 750);
-        }, 3000);
+        alert('Geolocalização não é suportada pelo seu navegador.');
+    }
+}
+
+// Função para atualizar a localização do motorista em tempo real
+function updateDriverLocation(latitude, longitude) {
+    if (window.driverMarker && window.map) {
+        const newPosition = new google.maps.LatLng(latitude, longitude);
+        
+        // Atualizar posição do marcador com animação
+        driverMarker.setPosition(newPosition);
+        
+        // Suavizar o movimento do mapa
+        map.panTo(newPosition);
+        
+        // Adicionar animação de bounce
+        driverMarker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(() => {
+            driverMarker.setAnimation(null);
+        }, 1500);
     }
 }
 
 // Inicializar o mapa quando a API do Google Maps carregar
 window.initMap = initMap;
+window.initDriverMap = initDriverMap;
+window.updateDriverLocation = updateDriverLocation;

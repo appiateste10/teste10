@@ -1,6 +1,6 @@
 // Sistema de autenticação
 
-// Configuração dos motoristas (deve ser acessível em todos os arquivos)
+// Configuração dos motoristas
 const drivers = {
     "Mega": {
         password: "12345",
@@ -82,11 +82,33 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('driverPhone').textContent = sessionStorage.getItem('driverPhone');
         document.getElementById('driverCar').textContent = sessionStorage.getItem('driverCar');
         
+        // Atualizar data e hora em tempo real
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'Europe/Lisbon'
+            };
+            
+            const dateTimeStr = now.toLocaleDateString('pt-PT', options);
+            document.getElementById('currentDateTime').textContent = dateTimeStr;
+        }
+        
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
         // Configurar botão de logout
         document.getElementById('btnLogout').addEventListener('click', function() {
             sessionStorage.removeItem('currentDriver');
             sessionStorage.removeItem('driverCar');
             sessionStorage.removeItem('driverPhone');
+            stopTracking();
             window.location.href = 'index.html';
         });
         
@@ -121,7 +143,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         startTrackingBtn.addEventListener('click', function() {
-            alert('Rastreamento iniciado! Sua localização será compartilhada em tempo real.');
+            alert('Rastreamento iniciado! Sua localização será atualizada em tempo real.');
+            
+            // Forçar atualização imediata da localização
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const driverLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        if (window.updateDriverLocation) {
+                            window.updateDriverLocation(driverLocation.lat, driverLocation.lng);
+                        }
+                    },
+                    function(error) {
+                        console.error('Erro ao obter localização:', error);
+                    },
+                    { enableHighAccuracy: true }
+                );
+            }
         });
     }
 });
@@ -133,39 +175,43 @@ function startTracking() {
     if ('geolocation' in navigator) {
         watchId = navigator.geolocation.watchPosition(
             function(position) {
-                const { latitude, longitude } = position.coords;
-                console.log('Localização:', latitude, longitude);
+                const { latitude, longitude, accuracy } = position.coords;
+                console.log('📍 Localização atual:', latitude, longitude, '(Precisão: ' + accuracy + 'm)');
                 
-                if (window.driverMarker) {
-                    const newPosition = { lat: latitude, lng: longitude };
-                    window.driverMarker.setPosition(newPosition);
-                    
-                    // Atualizar o centro do mapa para a nova posição
-                    if (window.map) {
-                        window.map.setCenter(newPosition);
-                    }
-                    
-                    // Animação de movimento
-                    window.driverMarker.setAnimation(google.maps.Animation.BOUNCE);
-                    setTimeout(() => {
-                        window.driverMarker.setAnimation(null);
-                    }, 1500);
+                // Atualizar o marcador no mapa
+                if (window.updateDriverLocation) {
+                    window.updateDriverLocation(latitude, longitude);
                 }
                 
-                // Aqui você enviaria a localização para o servidor em tempo real
-                // sendLocationToServer(latitude, longitude);
+                // Enviar para servidor (simulação)
+                sendLocationToServer(latitude, longitude);
             },
             function(error) {
-                console.error('Erro ao obter localização:', error);
+                console.error('❌ Erro na geolocalização:', error);
+                let errorMsg = 'Erro desconhecido';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg = 'Permissão de localização negada';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg = 'Localização indisponível';
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg = 'Tempo limite excedido';
+                        break;
+                }
+                alert('Erro de localização: ' + errorMsg);
             },
             { 
                 enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
+                timeout: 10000,
+                maximumAge: 30000
             }
         );
+        
+        console.log('✅ Rastreamento iniciado');
     } else {
-        alert('Geolocalização não é suportada pelo seu navegador.');
+        alert('❌ Geolocalização não é suportada pelo seu navegador.');
     }
 }
 
@@ -173,5 +219,38 @@ function stopTracking() {
     if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
+        console.log('⏹️ Rastreamento parado');
     }
+}
+
+// Função para enviar localização para o servidor
+function sendLocationToServer(lat, lng) {
+    const driverId = sessionStorage.getItem('currentDriver');
+    
+    if (!driverId) return;
+    
+    // Simulação de envio para o servidor
+    const locationData = {
+        driverId: driverId,
+        latitude: lat,
+        longitude: lng,
+        timestamp: new Date().toISOString(),
+        car: sessionStorage.getItem('driverCar')
+    };
+    
+    console.log('📤 Enviando para servidor:', locationData);
+    
+    // Em uma implementação real:
+    /*
+    fetch('/api/driver-location', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(locationData)
+    })
+    .then(response => response.json())
+    .then(data => console.log('✅ Localização enviada:', data))
+    .catch(error => console.error('❌ Erro ao enviar:', error));
+    */
 }

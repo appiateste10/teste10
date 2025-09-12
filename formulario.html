@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitar Táxi - LisboaGo</title>
+    <title>Área do Motorista - LisboaGo</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23006600'><path d='M20 9h-9V4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7c0-1.1-.9-2-2-2zm-7 6H7v-2h6v2zm4-4H7V9h10v2z'/></svg>">
 </head>
 <body>
     <header>
@@ -13,76 +14,145 @@
             <p>Seu Táxi em Lisboa, Quando Precisar!</p>
         </div>
         <nav>
-            <button onclick="window.location.href='index.html'">Voltar</button>
+            <button id="btnLogout">Sair</button>
         </nav>
     </header>
 
-    <main class="form-main">
-        <h2>Solicite seu táxi</h2>
+    <main class="driver-main">
+        <!-- Painel de informações do motorista (arrastável) -->
+        <div class="driver-info">
+            <div class="drag-handle" id="dragHandle" title="Arrastar para mover"></div>
+            
+            <h2>Informações do Motorista</h2>
+            
+            <div class="info-card">
+                <p><strong>Nome:</strong> <span id="driverName">-</span></p>
+                <p><strong>Status:</strong> <span id="driverStatus">Offline</span></p>
+                <p><strong>Categoria:</strong> Motorista Profissional</p>
+                <p><strong>Número Celular:</strong> <span id="driverPhone">-</span></p>
+                <p><strong>Carro:</strong> <span id="driverCar">-</span></p>
+                <p><strong>Placa:</strong> Logan 62-QM-79</p>
+                <p><strong>Data e Hora:</strong> <span id="currentDateTime">-</span></p>
+            </div>
+            
+            <!-- Informações de posição em tempo real -->
+            <div class="position-info" id="positionInfo">
+                <strong>Status:</strong> <span style="color: red;">● Offline</span><br>
+                <strong>Última atualização:</strong> -<br>
+                <strong>Coordenadas:</strong> -
+            </div>
+            
+            <!-- Informações do sistema -->
+            <div class="system-info" id="systemInfo">
+                <strong>Status do Sistema:</strong> ✅ Online<br>
+                <strong>Última verificação:</strong> <span id="lastCheck">-</span>
+            </div>
+            
+            <div class="driver-actions">
+                <button id="toggleOnline">Ficar Online</button>
+                <button id="startTracking" disabled>Iniciar Rastreamento</button>
+                <button id="currentLocationBtn" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white;">
+                    📍 Minha Localização
+                </button>
+            </div>
+            
+            <!-- Estatísticas rápidas -->
+            <div class="info-card" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                    📊 Estatísticas Hoje
+                </h3>
+                <p><strong>Corridas realizadas:</strong> <span id="ridesCount">0</span></p>
+                <p><strong>Km percorridos:</strong> <span id="kmDriven">0 km</span></p>
+                <p><strong>Tempo online:</strong> <span id="onlineTime">00:00:00</span></p>
+            </div>
+        </div>
         
-        <form id="taxiForm">
-            <div class="form-group">
-                <label for="name">Nome</label>
-                <input type="text" id="name" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="location">Onde você está?</label>
-                <input type="text" id="location" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="destination">Pra onde vai?</label>
-                <input type="text" id="destination" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="passengers">Passageiros</label>
-                <select id="passengers">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="contact">Contato</label>
-                <input type="tel" id="contact" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="eta">Tempo de chegada</label>
-                <select id="eta">
-                    <option value="5min">5 minutos</option>
-                    <option value="10min">10 minutos</option>
-                    <option value="15min">15 minutos</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="payment">Forma de pagamento</label>
-                <select id="payment">
-                    <option value="Dinheiro">Dinheiro</option>
-                    <option value="Cartão">Cartão</option>
-                    <option value="MB Way">MB Way</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="notes">Observação</label>
-                <textarea id="notes" rows="3"></textarea>
-            </div>
-        </form>
-        
-        <div class="whatsapp-buttons">
-            <h3>Enviar via WhatsApp</h3>
-            <div id="driverButtons">
-                <!-- Os botões serão gerados dinamicamente pelo JavaScript -->
-            </div>
+        <!-- Mapa -->
+        <div class="driver-map">
+            <div id="map"></div>
+            <!-- Botão de localização atual no mapa -->
+            <button class="current-location-btn" id="mapLocationBtn" title="Centralizar na minha localização">
+                📍
+            </button>
         </div>
     </main>
 
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+            <h3>Carregando...</h3>
+            <p>Iniciando sistema de rastreamento</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Carregar Google Maps API com callback para initDriverMap
+        function loadGoogleMaps() {
+            if (!document.querySelector('script[src*="googleapis"]')) {
+                const script = document.createElement('script');
+                script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBmc6HTJo70N_ueR1qFVgyu74v7FIl7dU4&callback=initDriverMap&libraries=geometry,places';
+                script.async = true;
+                script.defer = true;
+                script.onerror = function() {
+                    console.error('Erro ao carregar Google Maps API');
+                    alert('Erro ao carregar o mapa. Verifique sua conexão com a internet.');
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        // Mostrar loading
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        // Esconder loading
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Iniciar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoading();
+            loadGoogleMaps();
+            
+            // Verificar se está logado
+            const currentDriver = sessionStorage.getItem('currentDriver');
+            if (!currentDriver) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Esconder loading após 2 segundos (ou quando o mapa carregar)
+            setTimeout(hideLoading, 2000);
+        });
+
+        // Handle errors
+        window.addEventListener('error', function(e) {
+            console.error('Erro global:', e.error);
+            hideLoading();
+        });
+
+        // Handle unhandled rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Promise rejeitada:', e.reason);
+            hideLoading();
+        });
+    </script>
+
+    <script src="auth.js"></script>
+    <script src="map.js"></script>
     <script src="script.js"></script>
+
+    <!-- Service Worker para funcionalidades offline -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(function(error) {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -18,22 +18,24 @@
     </header>
 
     <main class="driver-main">
-        <div class="driver-info">
-            <h2>Informações do Motorista</h2>
-            <div class="info-card">
-                <p><strong>Nome:</strong> <span id="driverName"></span></p>
-                <p><strong>Status:</strong> <span id="driverStatus">Offline</span></p>
-                <p><strong>Categoria:</strong> Motorista Profissional</p>
-                <p><strong>Número Celular:</strong> <span id="driverPhone"></span></p>
-                <p><strong>Carro:</strong> <span id="driverCar"></span></p>
-                <p><strong>Data e Hora:</strong> <span id="currentDateTime"></span></p>
-            </div>
-            
-            <div class="driver-actions">
-                <button id="toggleOnline">Ficar Online</button>
-                <button id="startTracking" disabled>Iniciar Rastreamento</button>
-            </div>
-        </div>
+        <!-- Substitua a seção .driver-info por: -->
+<div class="driver-info">
+    <div class="drag-handle" id="dragHandle"></div>
+    <h2>Informações do Motorista</h2>
+    <div class="info-card">
+        <p><strong>Nome:</strong> <span id="driverName"></span></p>
+        <p><strong>Status:</strong> <span id="driverStatus">Offline</span></p>
+        <p><strong>Categoria:</strong> Motorista Profissional</p>
+        <p><strong>Número Celular:</strong> <span id="driverPhone"></span></p>
+        <p><strong>Carro:</strong> <span id="driverCar"></span></p>
+        <p><strong>Data e Hora:</strong> <span id="currentDateTime"></span></p>
+    </div>
+    
+    <div class="driver-actions">
+        <button id="toggleOnline">Ficar Online</button>
+        <button id="startTracking" disabled>Iniciar Rastreamento</button>
+    </div>
+</div>
         
         <div class="driver-map">
             <div id="map"></div>

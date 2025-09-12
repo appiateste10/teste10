@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Motorista - LisboaGo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>LisboaGo</h1>
+            <p>Seu Táxi em Lisboa, Quando Precisar!</p>
+        </div>
+        <nav>
+            <button id="btnLogout">Sair</button>
+        </nav>
+    </header>
+
+    <main class="driver-main">
+        <div class="driver-info">
+            <h2>Informações do Motorista</h2>
+            <div class="info-card">
+                <p><strong>Nome:</strong> <span id="driverName"></span></p>
+                <p><strong>Status:</strong> <span id="driverStatus">Offline</span></p>
+                <p><strong>Categoria:</strong> Motorista Profissional</p>
+                <p><strong>Número Celular:</strong> <span id="driverPhone"></span></p>
+                <p><strong>Carro:</strong> <span id="driverCar"></span></p>
+                <p><strong>Data e Hora:</strong> <span id="currentDateTime"></span></p>
+            </div>
+            
+            <div class="driver-actions">
+                <button id="toggleOnline">Ficar Online</button>
+                <button id="startTracking" disabled>Iniciar Rastreamento</button>
+            </div>
+        </div>
+        
+        <div class="driver-map">
+            <div id="map"></div>
+        </div>
+    </main>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmc6HTJo70N_ueR1qFVgyu74v7FIl7dU4&callback=initDriverMap" async defer></script>
+    <script src="map.js"></script>
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

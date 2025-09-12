@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Táxi - LisboaGo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>LisboaGo</h1>
+            <p>Seu Táxi em Lisboa, Quando Precisar!</p>
+        </div>
+        <nav>
+            <button onclick="window.location.href='index.html'">Voltar</button>
+        </nav>
+    </header>
+
+    <main class="form-main">
+        <h2>Solicite seu táxi</h2>
+        
+        <form id="taxiForm">
+            <div class="form-group">
+                <label for="name">Nome</label>
+                <input type="text" id="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Onde você está?</label>
+                <input type="text" id="location" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="destination">Pra onde vai?</label>
+                <input type="text" id="destination" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="passengers">Passageiros</label>
+                <select id="passengers">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="contact">Contato</label>
+                <input type="tel" id="contact" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eta">Tempo de chegada</label>
+                <select id="eta">
+                    <option value="5min">5 minutos</option>
+                    <option value="10min">10 minutos</option>
+                    <option value="15min">15 minutos</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="payment">Forma de pagamento</label>
+                <select id="payment">
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Cartão">Cartão</option>
+                    <option value="MB Way">MB Way</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Observação</label>
+                <textarea id="notes" rows="3"></textarea>
+            </div>
+        </form>
+        
+        <div class="whatsapp-buttons">
+            <h3>Enviar via WhatsApp</h3>
+            <div id="driverButtons">
+                <!-- Os botões serão gerados dinamicamente pelo JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

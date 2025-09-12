@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LisboaGo - Seu Táxi em Lisboa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>LisboaGo</h1>
+            <p>Seu Táxi em Lisboa, Quando Precisar!</p>
+        </div>
+        <nav>
+            <button id="btnAreaMotorista" onclick="window.location.href='login.html'">Área do Motorista</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="map"></div>
+        <div class="call-to-action">
+            <button onclick="window.location.href='formulario.html'">Chame LisboaGo</button>
+        </div>
+    </main>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmc6HTJo70N_ueR1qFVgyu74v7FIl7dU4&callback=initMap" async defer></script>
+    <script src="map.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
